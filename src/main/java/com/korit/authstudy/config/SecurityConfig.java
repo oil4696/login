@@ -1,17 +1,28 @@
 package com.korit.authstudy.config;
 
+import com.korit.authstudy.filter.StudyFilter;
+import com.korit.authstudy.security.security.filter.JwtAuthenticationFilter;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.util.matcher.RegexRequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+
+
 @Configuration
+@RequiredArgsConstructor
 public class SecurityConfig {
+
+    private final StudyFilter studyFilter;
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
     @Bean   // ioc의 부품으로 등록해줌
     public BCryptPasswordEncoder passwordEncoder() {
@@ -43,9 +54,15 @@ public class SecurityConfig {
         http.httpBasic(httpBasic -> httpBasic.disable());   //HTTP 프로토콜 기본 로그인 방식 비활성화
         http.logout(logout -> logout.disable());            // 서버사이드 렌더링 로그아웃 방식 비활성화
 
+//        http.addFilterBefore(studyFilter, UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);  //UsernamePasswordAuthenticationFilter -> 인증여부 확인
+
         // 특정 요청 URL에 대한 권한 설정
         //authorizeHttpRequests -> 인증할 요청 URL에 모든 요청을 받지않음
-        http.authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
+        http.authorizeHttpRequests(auth -> {
+            auth.requestMatchers("/api/users", "api/users/login", "/api/users/login/status").permitAll();  //permitAll() -> 권한부여 함수
+            auth.anyRequest().authenticated();  //authenticated -> 인증받아야한다는 함수
+        });
 
         // HttpSecurity 객체에 설정한 모든 정보를 기반으로 bild하여 SecutirtyFilter 객체 생성 후 BEAN 등록
         return http.build();
