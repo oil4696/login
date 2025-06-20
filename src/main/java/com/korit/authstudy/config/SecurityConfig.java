@@ -1,7 +1,7 @@
 package com.korit.authstudy.config;
 
 import com.korit.authstudy.filter.StudyFilter;
-import com.korit.authstudy.security.security.filter.JwtAuthenticationFilter;
+import com.korit.authstudy.security.filter.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -10,7 +10,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.util.matcher.RegexRequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -60,7 +59,7 @@ public class SecurityConfig {
         // 특정 요청 URL에 대한 권한 설정
         //authorizeHttpRequests -> 인증할 요청 URL에 모든 요청을 받지않음
         http.authorizeHttpRequests(auth -> {
-            auth.requestMatchers("/api/users", "api/users/login", "/api/users/login/status").permitAll();  //permitAll() -> 권한부여 함수
+            auth.requestMatchers("/api/users", "api/users/login", "/api/users/login/status", "/api/users/principal").permitAll();  //permitAll() -> 권한부여 함수
             auth.anyRequest().authenticated();  //authenticated -> 인증받아야한다는 함수
         });
 
